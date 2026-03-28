@@ -7,12 +7,16 @@ namespace resource_api.Controllers;
 [ApiController]
 [Authorize]
 [Route("profile")]
-public class ProfileController(GameStore gameStore) : ControllerBase
+public class ProfileController : ControllerBase
 {
+    private readonly GameStore _gameStore;
+
+    public ProfileController(GameStore gameStore) => _gameStore = gameStore;
+
     [HttpGet("progress")]
     public IActionResult GetProgress()
     {
         var userId = GameStore.GetUserId(User);
-        return Ok(gameStore.GetProgress(userId));
+        return Ok(_gameStore.GetProgress(userId));
     }
 }
