@@ -39,7 +39,8 @@ public class AuthController : ControllerBase
 
         var result = await _userManager.CreateAsync(user, registerDto.Password);
 
-        if (!result.Succeeded) return BadRequest(result.Errors);
+        if (!result.Succeeded) 
+            return BadRequest(result.Errors.Select(e => e.Description));
 
         if (!await _roleManager.RoleExistsAsync("player"))
             await _roleManager.CreateAsync(new IdentityRole("player"));
@@ -81,12 +82,12 @@ public class AuthController : ControllerBase
     [HttpGet("me")]
     public async Task<ActionResult<UserDto>> GetCurrentUser()
     {
-        var username = User.FindFirst(ClaimTypes.Name)?.Value 
-                      ?? User.FindFirst(JwtRegisteredClaimNames.UniqueName)?.Value;
-        
-        if (string.IsNullOrEmpty(username)) return Unauthorized();
+        var userId = User.FindFirst(JwtRegisteredClaimNames.Sub)?.Value
+                  ?? User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
-        var user = await _userManager.FindByNameAsync(username);
+        if (string.IsNullOrEmpty(userId)) return Unauthorized();
+
+        var user = await _userManager.FindByIdAsync(userId);
 
         if (user == null) return Unauthorized();
 

@@ -20,22 +20,24 @@ const LoginPage = () => {
   };
 
   return (
-    <div className="auth-container">
+    <section className="page-panel auth-panel narrow-panel">
+      <div className="eyebrow">Player Access</div>
       <h2>Login</h2>
-      {error && <p className="error">{error}</p>}
-      <form onSubmit={handleSubmit}>
-        <div>
+      <p className="section-copy">Sign in to unlock randomized pack selection and progress tracking.</p>
+      {error && <div className="status-card error-card">{error}</div>}
+      <form className="auth-form" onSubmit={handleSubmit}>
+        <div className="form-field">
           <label>Username</label>
           <input type="text" value={username} onChange={(e) => setUsername(e.target.value)} required />
         </div>
-        <div>
+        <div className="form-field">
           <label>Password</label>
           <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} required />
         </div>
-        <button type="submit">Login</button>
+        <button className="button button-primary" type="submit">Login</button>
       </form>
-      <p>Don't have an account? <Link to="/register">Register here</Link></p>
-    </div>
+      <p className="auth-switch">Don't have an account? <Link to="/register">Register here</Link></p>
+    </section>
   );
 };
 

@@ -80,11 +80,16 @@ app.UseAuthorization();
 
 app.MapControllers();
 
-// Seed Roles
+// Seed Data & Database Initialization
 using (var scope = app.Services.CreateScope())
 {
     var services = scope.ServiceProvider;
+    var context = services.GetRequiredService<ApplicationDbContext>();
     var roleManager = services.GetRequiredService<RoleManager<IdentityRole>>();
+
+    // Apply migrations
+    await context.Database.MigrateAsync();
+
     var roles = new[] { "admin", "player" };
 
     foreach (var role in roles)
