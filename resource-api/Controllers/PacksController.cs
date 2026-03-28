@@ -7,19 +7,26 @@ namespace resource_api.Controllers;
 [ApiController]
 [Authorize]
 [Route("packs")]
-public class PacksController(GameStore gameStore) : ControllerBase
+public class PacksController : ControllerBase
 {
+    private readonly GameStore _gameStore;
+
+    public PacksController(GameStore gameStore)
+    {
+        _gameStore = gameStore;
+    }
+
     [HttpGet]
     public IActionResult GetPacks([FromQuery] bool random = false)
     {
-        return Ok(gameStore.GetPublishedPacks(random));
+        return Ok(_gameStore.GetPublishedPacks(random));
     }
 
     [HttpPost("{packId:guid}/restart")]
     public IActionResult RestartPack(Guid packId)
     {
         var userId = GameStore.GetUserId(User);
-        gameStore.ResetPackProgress(userId, packId);
+        _gameStore.ResetPackProgress(userId, packId);
         return NoContent();
     }
 }

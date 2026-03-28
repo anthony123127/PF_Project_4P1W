@@ -8,12 +8,27 @@ namespace resource_api.Controllers;
 [ApiController]
 [Authorize]
 [Route("game")]
-public class GameController(GameStore gameStore) : ControllerBase
+public class GameController : ControllerBase
 {
+    private readonly GameStore _gameStore;
+
+    public GameController(GameStore gameStore)
+    {
+        _gameStore = gameStore;
+    }
+
     [HttpPost("submit")]
     public IActionResult SubmitGuess([FromBody] SubmitGuessRequest request)
     {
-        var userId = GameStore.GetUserId(User);
-        return Ok(gameStore.SubmitGuess(userId, request));
+        try
+        {
+            var userId = GameStore.GetUserId(User);
+            var result = _gameStore.SubmitGuess(userId, request);
+            return Ok(result);
+        }
+        catch (KeyNotFoundException ex)
+        {
+            return NotFound(new { error = ex.Message });
+        }
     }
 }
