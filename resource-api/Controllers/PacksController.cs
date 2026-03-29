@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using resource_api.Models;
 using resource_api.Services;
 
 namespace resource_api.Controllers;
@@ -17,8 +18,12 @@ public class PacksController : ControllerBase
     }
 
     [HttpGet]
-    public IActionResult GetPacks([FromQuery] bool random = false)
+    public IActionResult GetPacks([FromQuery] bool random = false, [FromQuery] bool admin = false)
     {
+        if (admin && User.IsInRole("admin"))
+        {
+            return Ok(_gameStore.GetAllPacks());
+        }
         return Ok(_gameStore.GetPublishedPacks(random));
     }
 

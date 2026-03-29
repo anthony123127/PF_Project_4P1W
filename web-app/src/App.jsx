@@ -1,5 +1,5 @@
 import React from 'react';
-import { BrowserRouter as Router, NavLink, Route, Routes } from 'react-router-dom';
+import { BrowserRouter as Router, NavLink, Route, Routes, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import ProtectedRoute from './components/ProtectedRoute';
 import LoginPage from './pages/LoginPage';
@@ -10,6 +10,8 @@ import ProfilePage from './pages/ProfilePage';
 import './App.css';
 import ImagesPage from './pages/admin/ImagesPage';
 import TagsPage from './pages/admin/TagsPage';
+import PacksManagementPage from './pages/admin/PacksManagementPage';
+import PuzzlesManagementPage from './pages/admin/PuzzlesManagementPage';
 
 const HomePage = () => {
   const { user, isAdmin } = useAuth();
@@ -47,14 +49,27 @@ const HomePage = () => {
   );
 };
 
-const AdminPlaceholderPage = () => (
+const AdminDashboard = () => (
   <section className="page-panel narrow-panel">
     <div className="eyebrow">Admin CMS</div>
-    <h1>CMS screens are reserved for the next iteration.</h1>
+    <h1>Welcome to the Puzzle Studio CMS.</h1>
     <p className="section-copy">
-      Route protection is active. The player experience and resource API are wired now so the admin image, tag,
-      puzzle, and pack workflows can layer in cleanly.
+      Manage your game content from here. Select a module to begin.
     </p>
+    <div className="info-grid">
+        <Link to="/admin/packs" className="info-card clickable">
+            <h2>Packs</h2>
+            <p>Create and manage puzzle packs, set display order, and publish content.</p>
+        </Link>
+        <Link to="/admin/images" className="info-card clickable">
+            <h2>Images</h2>
+            <p>Upload new images and manage tags for easy puzzle selection.</p>
+        </Link>
+        <Link to="/admin/tags" className="info-card clickable">
+            <h2>Tags</h2>
+            <p>Manage the global list of tags for categorization.</p>
+        </Link>
+    </div>
   </section>
 );
 
@@ -125,11 +140,45 @@ const AppLayout = () => {
               </ProtectedRoute>
             }
           />
+          
+          {/* Admin Routes */}
           <Route
             path="/admin"
             element={
               <ProtectedRoute adminOnly>
-                <AdminPlaceholderPage />
+                <AdminDashboard />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin/packs"
+            element={
+              <ProtectedRoute adminOnly>
+                <PacksManagementPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin/puzzles/:packId"
+            element={
+              <ProtectedRoute adminOnly>
+                <PuzzlesManagementPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin/images"
+            element={
+              <ProtectedRoute adminOnly>
+                <ImagesPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin/tags"
+            element={
+              <ProtectedRoute adminOnly>
+                <TagsPage />
               </ProtectedRoute>
             }
           />
@@ -138,6 +187,9 @@ const AppLayout = () => {
     </div>
   );
 };
+
+// Wrap Link component for AdminDashboard
+import { Link } from 'react-router-dom';
 
 const App = () => (
   <AuthProvider>
