@@ -158,6 +158,96 @@ public sealed class GameStore
         }
     }
 
+    public IReadOnlyList<PackDefinition> GetAllPacks()
+    {
+        lock (_syncRoot)
+        {
+            return _packs.OrderBy(p => p.DisplayOrder).ToList();
+        }
+    }
+
+    public void UpsertPack(PackDefinition pack)
+    {
+        lock (_syncRoot)
+        {
+            var index = _packs.FindIndex(p => p.Id == pack.Id);
+            if (index >= 0) _packs[index] = pack;
+            else _packs.Add(pack);
+        }
+    }
+
+    public void DeletePack(Guid id)
+    {
+        lock (_syncRoot)
+        {
+            _packs.RemoveAll(p => p.Id == id);
+            _puzzles.RemoveAll(p => p.PackId == id);
+        }
+    }
+
+    public IReadOnlyList<PuzzleDefinition> GetAllPuzzles(Guid? packId = null)
+    {
+        lock (_syncRoot)
+        {
+            return packId.HasValue 
+                ? _puzzles.Where(p => p.PackId == packId.Value).ToList() 
+                : _puzzles.ToList();
+        }
+    }
+
+    public void UpsertPuzzle(PuzzleDefinition puzzle)
+    {
+        lock (_syncRoot)
+        {
+            var index = _puzzles.FindIndex(p => p.Id == puzzle.Id);
+            if (index >= 0) _puzzles[index] = puzzle;
+            else _puzzles.Add(puzzle);
+        }
+    }
+
+    public void DeletePuzzle(Guid id)
+    {
+        lock (_syncRoot)
+        {
+            _puzzles.RemoveAll(p => p.Id == id);
+        }
+    }
+
+    public IReadOnlyList<ImageAsset> GetAllImages()
+    {
+        lock (_syncRoot)
+        {
+            return _images.ToList();
+        }
+    }
+
+    public void UpsertImage(ImageAsset image)
+    {
+        lock (_syncRoot)
+        {
+            var index = _images.FindIndex(i => i.Id == image.Id);
+            if (index >= 0) _images[index] = image;
+            else _images.Add(image);
+        }
+    }
+
+    public void DeleteImage(Guid id)
+    {
+        lock (_syncRoot)
+        {
+            _images.RemoveAll(i => i.Id == id);
+            // Optionally remove from puzzles, but let's keep it simple
+        }
+    }
+
+    public IReadOnlyList<string> GetAllTags()
+    {
+        lock (_syncRoot)
+        {
+            return _images.SelectMany(i => i.Tags).Distinct().OrderBy(t => t).ToList();
+        }
+    }
+
     public static string GetUserId(ClaimsPrincipal user)
     {
         return user.FindFirstValue("sub")
@@ -169,7 +259,8 @@ public sealed class GameStore
     private NextPuzzleDto MapPuzzle(List<PuzzleDefinition> packPuzzles, List<PuzzleDefinition> remaining, PuzzleDefinition puzzle)
     {
         var imageUrls = puzzle.ImageIds
-            .Select(imageId => _images.First(image => image.Id == imageId).Url)
+            .Select(imageId => _images.FirstOrDefault(image => image.Id == imageId)?.Url ?? "")
+            .Where(url => !string.IsNullOrEmpty(url))
             .ToArray();
 
         return new NextPuzzleDto(
