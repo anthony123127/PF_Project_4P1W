@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using resource_api.Models;
 using resource_api.Services;
 
 namespace resource_api.Controllers;
@@ -29,5 +30,37 @@ public class PuzzlesController : ControllerBase
         {
             return NotFound(new { error = ex.Message });
         }
+    }
+
+    [HttpGet]
+    [Authorize(Roles = "admin")]
+    public IActionResult GetPuzzles([FromQuery] Guid? packId = null)
+    {
+        return Ok(_gameStore.GetAllPuzzles(packId));
+    }
+
+    [HttpPost]
+    [Authorize(Roles = "admin")]
+    public IActionResult UpsertPuzzle([FromBody] UpsertPuzzleRequest request)
+    {
+        var id = request.Id ?? Guid.NewGuid();
+        var puzzle = new PuzzleDefinition(
+            id, 
+            request.PackId, 
+            request.Answer, 
+            request.Hint, 
+            request.Difficulty, 
+            request.ImageIds, 
+            request.AcceptedVariants);
+        _gameStore.UpsertPuzzle(puzzle);
+        return Ok(puzzle);
+    }
+
+    [HttpDelete("{id:guid}")]
+    [Authorize(Roles = "admin")]
+    public IActionResult DeletePuzzle(Guid id)
+    {
+        _gameStore.DeletePuzzle(id);
+        return NoContent();
     }
 }

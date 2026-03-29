@@ -35,3 +35,25 @@ public record RecentPuzzleDto(
     string Answer,
     bool Correct,
     DateTimeOffset PlayedAt);
+
+public record UpsertPackRequest(
+    Guid? Id,
+    string Name,
+    string Description,
+    bool Published,
+    int DisplayOrder);
+
+public record UpsertPuzzleRequest(
+    Guid? Id,
+    Guid PackId,
+    string Answer,
+    string Hint,
+    string Difficulty,
+    IReadOnlyList<Guid> ImageIds,
+    IReadOnlyList<string> AcceptedVariants);
+
+public record ImageAssetDto(
+    Guid Id,
+    string Url,
+    string Title,
+    IReadOnlyList<string> Tags);
