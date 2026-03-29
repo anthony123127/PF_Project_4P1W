@@ -8,6 +8,8 @@ import PacksPage from './pages/PacksPage';
 import PlayPage from './pages/PlayPage';
 import ProfilePage from './pages/ProfilePage';
 import './App.css';
+import ImagesPage from './pages/admin/ImagesPage';
+import TagsPage from './pages/admin/TagsPage';
 
 const HomePage = () => {
   const { user, isAdmin } = useAuth();
